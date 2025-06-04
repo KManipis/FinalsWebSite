@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Organization Page</title>
+  <meta charset="UTF-8">
+</head>
+<body>
+  <h1 id="orgName">Loading...</h1>
+  <img id="orgLogo"><br><br>
+  <h3>Announcement:</h3>
+  <p id="orgAnnouncement">No announcement available.</p>
+
+  <script type="module">
+    import { loadOrgData } from './orgUtils.js';
+
+    const params = new URLSearchParams(window.location.search);
+    const orgId = params.get('id');
+
+    loadOrgData(orgId, {
+      nameElementId: 'orgName',
+      announcementElementId: 'orgAnnouncement',
+      logoElementId: 'orgLogo'
+    });
+  </script>
+</body>
+</html>

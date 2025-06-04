@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Organization Directory</title>
+  <meta charset="UTF-8">
+  <style>
+    .org-card {
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 10px;
+      display: inline-block;
+      width: 250px;
+      vertical-align: top;
+      text-align: center;
+      background: #f9f9f9;
+    }
+
+    .org-card img {
+      width: 150px;
+      height: auto;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      object-fit: contain;
+    }
+
+    .org-name {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .org-announcement {
+      font-size: 14px;
+      color: #333;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>All Organizations</h1>
+  <div id="orgList"></div>
+
+  <script type="module">
+    import { loadOrgData } from './orgUtils.js';
+
+    async function loadAllOrgs() {
+      try {
+        const res = await fetch('get_all_orgs.php');
+        const orgs = await res.json();
+
+        const container = document.getElementById('orgList');
+        container.innerHTML = '';
+
+        orgs.forEach(org => {
+          const card = document.createElement('div');
+          card.className = 'org-card';
+          card.id = `org-card-${org.id}`;
+
+          card.innerHTML = `
+            <a href="viewOrg.html?id=${org.id}">
+              <img id="logo-${org.id}" src="placeholder.jpg" alt="Org Logo" />
+              <div class="org-name" id="name-${org.id}">${org.org_name}</div>
+              <div class="org-announcement" id="announcement-${org.id}">${org.announcement || 'No announcement yet.'}</div>
+            </a>
+          `;
+
+          container.appendChild(card);
+
+          // Replace logo with actual image
+          const logoImg = document.getElementById(`logo-${org.id}`);
+          logoImg.src = `get_org_image.php?id=${org.id}&t=${Date.now()}`;
+        });
+
+      } catch (err) {
+        console.error("Failed to load orgs:", err);
+        document.getElementById('orgList').innerText = 'Error loading organizations.';
+      }
+    }
+
+    loadAllOrgs();
+  </script>
+
+</body>
+</html>

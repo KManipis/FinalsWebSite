@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Super Admin Panel</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    input, button { padding: 8px; margin: 5px 0; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+    th { background: #eee; }
+  </style>
+</head>
+<body>
+
+  <h1>Super Admin Panel</h1>
+
+  <h2>Create New Organization</h2>
+  <form id="createOrgForm">
+    <label>Organization Name:</label><br>
+    <input type="text" id="newOrgName" required><br>
+    <button type="submit">Create Organization</button>
+  </form>
+
+  <h2>Existing Organizations</h2>
+  <table id="orgTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Admin Panel</th>
+        <th>Public Page</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Populated by JS -->
+    </tbody>
+  </table>
+
+  <script>
+    // Load organizations list
+    function loadOrgs() {
+      fetch('list_orgs.php')
+        .then(res => res.json())
+        .then(data => {
+          const tbody = document.getElementById('orgTable').querySelector('tbody');
+          tbody.innerHTML = '';
+          data.forEach(org => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${org.id}</td>
+              <td>${org.org_name}</td>
+              <td><a href="sampleOrg.html?id=${org.id}" target="_blank">Admin Panel</a></td>
+              <td><a href="viewOrg.html?id=${org.id}" target="_blank">Public Page</a></td>
+            `;
+            tbody.appendChild(tr);
+          });
+        });
+    }
+
+    // Create new org
+    document.getElementById('createOrgForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('newOrgName').value.trim();
+      if (!name) return alert('Please enter organization name.');
+
+      fetch('create_org.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ org_name: name })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if(data.success) {
+          alert('Organization created with ID ' + data.id);
+          document.getElementById('newOrgName').value = '';
+          loadOrgs();
+        } else {
+          alert('Failed to create organization');
+        }
+      });
+    });
+
+    // Initial load
+    loadOrgs();
+  </script>
+
+</body>
+</html>

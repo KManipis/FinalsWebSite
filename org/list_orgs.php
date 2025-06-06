@@ -1,15 +1,14 @@
 <?php
-header('Content-Type: application/json');
-include 'db.php'; // Your DB connection file
+include 'db.php';
 
-$sql = "SELECT id, org_name FROM org";
+$sql = "SELECT o.id, o.org_name, u.name AS leader_name, u.email AS leader_email
+        FROM org o
+        LEFT JOIN users u ON o.id = u.org_id AND u.role = 'org_leader'";
 $result = $conn->query($sql);
 
 $orgs = [];
-if ($result) {
-    while ($row = $result->fetch_assoc()) {
-        $orgs[] = $row;
-    }
+while ($row = $result->fetch_assoc()) {
+    $orgs[] = $row;
 }
 
 echo json_encode($orgs);

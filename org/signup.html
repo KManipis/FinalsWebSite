@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Signup</title>
+</head>
+<body>
+  <h2>Signup</h2>
+  <form action="signup.php" method="POST" onsubmit="return validateSignupForm()">
+    <label>Name:</label><br>
+    <input type="text" name="name" required minlength="5" maxlength="40"><br><br>
+
+    <label>Email:</label><br>
+    <input type="email" name="email" id="signupEmail" required minlength="15" maxlength="60"><br><br>
+
+    <label>Password:</label><br>
+    <input type="password" name="password" id="signupPassword" minlength="7" maxlength="30"><br><br>
+
+
+    <button type="submit">Signup</button>
+  </form>
+
+  <script>
+    function validateSignupForm() {
+      const email = document.getElementById("signupEmail").value;
+      if (!email.includes("@nu-dasma.edu.ph")) {
+        alert("Email must contain '@nu-dasma.edu.ph'");
+        return false;
+      }
+    if (password.length < 7) {
+      alert("Password must be at least 7 characters long.");
+      return false;
+    }
+      return true;
+    }
+  </script>
+</body>
+</html>

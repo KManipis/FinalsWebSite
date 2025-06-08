@@ -10,56 +10,69 @@
 <body>
 
 <div class="org-header">
-  <div class="org-header">
   <h1>NU Organization Membership</h1>
 </div>
 
-  </div>
-
 <section class="join-section">
   <h2>Membership Application</h2>
-  <form action="thankyou.html" method="POST" class="join-form" onsubmit="return validateApplicationForm()">
-    <input type="hidden" name="_captcha" value="false">
-    <input type="hidden" name="_subject" value="New Red Cross Youth Volunteer Application!">
-    <input type="hidden" name="_template" value="table">
-    <input type="hidden" name="_next" value="thankyou.html">
+  <form id="applicationForm" class="join-form">
 
     <label><i class="fas fa-user icon-blue"></i> Name </label>
-    <input type="text" name="name" id="name" placeholder="Name" required>
+    <input type="text" name="student_name" id="name" placeholder="Name" required>
 
     <label><i class="fas fa-id-card icon-blue"></i> Student No</label>
-    <input type="text" name="studentNo" id="studentNo" placeholder="e.g. 2022-00000" required>
+    <input type="text" name="student_number" id="studentNo" placeholder="e.g. 2022-00000" required>
 
     <label><i class="fas fa-book icon-blue"></i> School Program</label>
     <input type="text" name="program" id="program" placeholder="e.g. BSIT-MWA SECA" required>
 
     <label><i class="fas fa-envelope icon-blue"></i> School Email</label>
-    <input type="email" name="email" id="email" placeholder="e.g. name@students.nu-dasma.edu.ph" required>
+    <input type="email" name="school_email" id="email" placeholder="e.g. name@nu-dasma.edu.ph" required>
+
+    <!-- You must dynamically pass the org ID of the org being applied to -->
+    <input type="hidden" name="org_id" value="1">
 
     <button type="submit">Submit</button>
   </form>
 </section>
 
 <script>
-  function validateApplicationForm() {
+  document.getElementById('applicationForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    // Validation
     const email = document.getElementById("email").value.trim();
     const studentNo = document.getElementById("studentNo").value.trim();
+    const studentNoPattern = /^\d{4}-\d{5}$/;
 
-    // Validate email
-    if (!email.endsWith("@students.nu-dasma.edu.ph")) {
-      alert("Please use a valid NU Dasma student email (e.g., name@students.nu-dasma.edu.ph).");
-      return false;
+    if (!email.endsWith("@nu-dasma.edu.ph")) {
+      alert("Please use a valid NU Dasma student email (e.g., name@nu-dasma.edu.ph).");
+      return;
     }
 
-    // Validate Student Number (format: YYYY-XXXXX)
-    const studentNoPattern = /^\d{4}-\d{5}$/;
     if (!studentNoPattern.test(studentNo)) {
       alert("Student number must follow the format: YYYY-00000 (e.g., 2022-12345).");
-      return false;
+      return;
     }
 
-    return true;
-  }
+    // Submit via fetch
+    const form = e.target;
+    const formData = new FormData(form);
+
+    fetch('submit_application.php', {
+      method: 'POST',
+      body: formData
+    })
+    .then(res => res.text())
+    .then(msg => {
+      alert(msg);
+      form.reset();
+    })
+    .catch(err => {
+      alert("Submission failed. Please try again.");
+      console.error(err);
+    });
+  });
 </script>
 
 <footer class="site-footer">

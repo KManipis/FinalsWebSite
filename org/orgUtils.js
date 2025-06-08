@@ -1,23 +1,19 @@
 export async function loadOrgData(orgId, {
   nameElementId,
   announcementElementId,
-  logoElementId,
-  titleElementId
+  logoElementId
 }) {
   try {
-    const response = await fetch(`get_org_data.php?id=${orgId}`);
+    const response = await fetch(`get_org_by_id.php?id=${orgId}`);
     const data = await response.json();
 
     if (nameElementId) {
       document.getElementById(nameElementId).textContent = data.org_name;
     }
 
-    if (titleElementId) {
-      document.getElementById(titleElementId).textContent = data.org_name;
-    }
-
     if (announcementElementId) {
-      document.getElementById(announcementElementId).textContent = data.announcement || "No announcement available.";
+      const ann = document.getElementById(announcementElementId);
+      if (ann) ann.textContent = data.announcement || "No announcement available.";
     }
 
     if (logoElementId) {

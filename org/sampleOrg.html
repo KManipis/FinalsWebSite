@@ -8,22 +8,19 @@
   <h1>Edit Organization</h1>
 
   <form action="logout.php" method="post" style="position: absolute; top: 20px; right: 20px;">
-  <button type="submit">Logout</button>
+    <button type="submit">Logout</button>
   </form>
 
   <form id="orgForm" enctype="multipart/form-data">
     <label>Organization Name:</label><br>
     <input type="text" id="orgName" name="orgName"><br><br>
 
-    <!-- ✅ Upload New Logo -->
     <label>Upload New Logo:</label><br>
     <input type="file" id="orgImage" name="orgImage" accept="image/*"><br><br>
 
-    <!-- ✅ Live Preview of New Logo -->
     <fieldset style="padding:10px; max-width:180px;">
       <legend><strong>New Logo Preview</strong></legend>
-      <img id="selectedPreview" src="" alt="Selected Preview" width="150"
-           style="display:none; border: 1px solid #aaa; padding: 5px;">
+      <img id="selectedPreview" src="" alt="Selected Preview" width="150" style="display:none; border: 1px solid #aaa; padding: 5px;">
     </fieldset><br>
 
     <label>Announcement:</label><br>
@@ -32,32 +29,88 @@
     <button type="submit">Save Changes</button>
   </form>
 
+  <h2>Pending Applications</h2>
+  <div id="applicationsContainer">Loading...</div>
+
+  <h2>Accepted Members</h2>
+  <ul id="memberList">Loading...</ul>
+
   <script>
     const params = new URLSearchParams(window.location.search);
     const orgId = params.get('id');
 
     if (!orgId) {
       alert('Missing organization ID in URL');
-    } else {
-      fetch(`get_org_by_id.php?id=${orgId}`)
-        .then(res => res.text())
-        .then(text => {
-          try {
-            const data = JSON.parse(text);
-            document.getElementById('orgName').value = data.org_name || '';
-            document.getElementById('orgAnnouncement').value = data.announcement || '';
-          } catch (err) {
-            console.error('Invalid JSON from server:', text);
-            alert("Failed to load organization data.");
-          }
-        })
-        .catch(err => {
-          console.error('Fetch error:', err);
-          alert("Error loading organization data.");
+      throw new Error('Organization ID is missing');
+    }
+
+    // ✅ Load organization details
+    fetch(`get_org_by_id.php?id=${orgId}`)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('orgName').value = data.org_name || '';
+        document.getElementById('orgAnnouncement').value = data.announcement || '';
+      })
+      .catch(err => {
+        console.error('Failed to load organization data', err);
+        alert("Error loading organization data.");
+      });
+
+    // ✅ Load pending applications
+    function loadApplications() {
+      fetch(`get_applications.php?org_id=${orgId}`)
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById('applicationsContainer');
+          container.innerHTML = '';
+          data.forEach(app => {
+            const div = document.createElement('div');
+            div.style.border = '1px solid #ccc';
+            div.style.padding = '10px';
+            div.style.marginBottom = '10px';
+            div.innerHTML = `
+              <strong>${app.student_name}</strong><br>
+              Student No: ${app.student_number}<br>
+              Program: ${app.program}<br>
+              Email: ${app.school_email}<br>
+              <button onclick="handleApplication(${app.id}, 'accepted')">Accept</button>
+              <button onclick="handleApplication(${app.id}, 'declined')">Decline</button>
+            `;
+            container.appendChild(div);
+          });
         });
     }
 
-    // ✅ Show live preview of selected image
+    function handleApplication(appId, action) {
+      fetch('process_application.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: appId, status: action })
+      })
+      .then(res => res.text())
+      .then(alert)
+      .then(() => {
+        loadApplications();
+        loadMembers(); // Refresh members list after accepting
+      });
+    }
+
+    // ✅ Load accepted members
+    function loadMembers() {
+      fetch(`get_members.php?org_id=${orgId}`)
+        .then(res => res.json())
+        .then(data => {
+          const list = document.getElementById('memberList');
+          list.innerHTML = '';
+          data.forEach(member => {
+            const li = document.createElement('li');
+            li.textContent = `${member.student_name} - ${member.program}`;
+            list.appendChild(li);
+          });
+        });
+    }
+
+    // ✅ Live image preview
     document.getElementById('orgImage').addEventListener('change', function () {
       const file = this.files[0];
       if (file) {
@@ -71,6 +124,7 @@
       }
     });
 
+    // ✅ Save organization changes
     document.getElementById('orgForm').addEventListener('submit', async function (event) {
       event.preventDefault();
 
@@ -80,14 +134,14 @@
       if (!name) return alert("Organization name is required.");
 
       try {
-        // 1. Update text fields
+        // Update name & announcement
         await fetch('update_org.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: orgId, org_name: name, announcement })
         });
 
-        // 2. Upload image if selected
+        // Upload new image if selected
         const imageInput = document.getElementById('orgImage');
         if (imageInput.files.length > 0) {
           const formData = new FormData();
@@ -109,6 +163,10 @@
         alert("Error saving changes: " + err.message);
       }
     });
+
+    // ✅ Load data on page load
+    loadApplications();
+    loadMembers();
   </script>
 
 </body>

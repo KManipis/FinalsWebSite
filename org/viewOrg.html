@@ -65,7 +65,8 @@
   <ul>
     <li><a href="MainHomepage.html">Home</a></li>
     <li><a href="Homepage.html">Organization</a></li>
-    <li><a href="ApplicationLetter.html">Register</a></li>
+    <li><a id="registerLink" href="#">Register</a></li>
+
   </ul>
 </nav>
 
@@ -170,6 +171,15 @@
   } else {
     console.error("Missing organization ID.");
   }
+
+  // Dynamically update the Register link with the org ID
+const registerLink = document.getElementById('registerLink');
+if (orgId) {
+  registerLink.href = `ApplicationLetter.html?id=${orgId}`;
+} else {
+  registerLink.style.display = 'none'; // Hide the link if org_id is missing
+}
+
 </script>
 
 </body>

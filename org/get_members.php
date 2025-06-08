@@ -11,7 +11,7 @@ if (!isset($_GET['org_id'])) {
 $orgId = intval($_GET['org_id']);
 
 $stmt = $conn->prepare("
-    SELECT student_name, program 
+    SELECT id, student_name, program 
     FROM applications 
     WHERE org_id = ? AND status = 'accepted'
     ORDER BY student_name ASC
@@ -32,4 +32,6 @@ while ($row = $result->fetch_assoc()) {
 }
 
 echo json_encode($acceptedMembers);
+$stmt->close();
+$conn->close();
 ?>

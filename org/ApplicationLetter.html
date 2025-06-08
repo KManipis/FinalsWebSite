@@ -30,7 +30,7 @@
     <input type="email" name="school_email" id="email" placeholder="e.g. name@nu-dasma.edu.ph" required>
 
     <!-- You must dynamically pass the org ID of the org being applied to -->
-    <input type="hidden" name="org_id" value="1">
+    <input type="hidden" name="org_id" id="orgIdInput">
 
     <button type="submit">Submit</button>
   </form>
@@ -55,10 +55,23 @@
       return;
     }
 
-    // Submit via fetch
+    // Get org_id from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const orgId = urlParams.get('id');
+
+    if (!orgId) {
+      alert("Missing org ID in the URL. Application won't be submitted correctly.");
+      return;
+    }
+
+    // Set the hidden input BEFORE FormData is created
+    document.getElementById('orgIdInput').value = orgId;
+
+    // Now create FormData (after org ID is set)
     const form = e.target;
     const formData = new FormData(form);
 
+    // Submit via fetch
     fetch('submit_application.php', {
       method: 'POST',
       body: formData
@@ -74,6 +87,7 @@
     });
   });
 </script>
+
 
 <footer class="site-footer">
   <div class="footer-content">

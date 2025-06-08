@@ -20,7 +20,8 @@
 
     <fieldset style="padding:10px; max-width:180px;">
       <legend><strong>New Logo Preview</strong></legend>
-      <img id="selectedPreview" src="" alt="Selected Preview" width="150" style="display:none; border: 1px solid #aaa; padding: 5px;">
+      <img id="selectedPreview" src="" alt="Selected Preview" width="150"
+           style="display:none; border: 1px solid #aaa; padding: 5px;">
     </fieldset><br>
 
     <label>Announcement:</label><br>
@@ -41,22 +42,8 @@
 
     if (!orgId) {
       alert('Missing organization ID in URL');
-      throw new Error('Organization ID is missing');
     }
 
-    // ✅ Load organization details
-    fetch(`get_org_by_id.php?id=${orgId}`)
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById('orgName').value = data.org_name || '';
-        document.getElementById('orgAnnouncement').value = data.announcement || '';
-      })
-      .catch(err => {
-        console.error('Failed to load organization data', err);
-        alert("Error loading organization data.");
-      });
-
-    // ✅ Load pending applications
     function loadApplications() {
       fetch(`get_applications.php?org_id=${orgId}`)
         .then(res => res.json())
@@ -89,13 +76,10 @@
       })
       .then(res => res.text())
       .then(alert)
-      .then(() => {
-        loadApplications();
-        loadMembers(); // Refresh members list after accepting
-      });
+      .then(loadApplications)
+      .then(loadMembers);
     }
 
-    // ✅ Load accepted members
     function loadMembers() {
       fetch(`get_members.php?org_id=${orgId}`)
         .then(res => res.json())
@@ -104,13 +88,47 @@
           list.innerHTML = '';
           data.forEach(member => {
             const li = document.createElement('li');
-            li.textContent = `${member.student_name} - ${member.program}`;
+            li.innerHTML = `
+              ${member.student_name} - ${member.program}
+              <button onclick="removeMember(${member.id}, ${orgId})" style="margin-left: 10px;">Remove</button>
+            `;
             list.appendChild(li);
           });
         });
     }
 
-    // ✅ Live image preview
+    function removeMember(Id, orgId) {
+      if (!confirm('Are you sure you want to remove this member?')) return;
+
+      fetch('remove_member.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: Id, org_id: orgId })
+      })
+      .then(res => res.text())
+      .then(alert)
+      .then(loadMembers);
+    }
+
+    // Load organization info
+    fetch(`get_org_by_id.php?id=${orgId}`)
+      .then(res => res.text())
+      .then(text => {
+        try {
+          const data = JSON.parse(text);
+          document.getElementById('orgName').value = data.org_name || '';
+          document.getElementById('orgAnnouncement').value = data.announcement || '';
+        } catch (err) {
+          console.error('Invalid JSON from server:', text);
+          alert("Failed to load organization data.");
+        }
+      })
+      .catch(err => {
+        console.error('Fetch error:', err);
+        alert("Error loading organization data.");
+      });
+
+    // Live image preview
     document.getElementById('orgImage').addEventListener('change', function () {
       const file = this.files[0];
       if (file) {
@@ -124,7 +142,7 @@
       }
     });
 
-    // ✅ Save organization changes
+    // Submit org info and upload image
     document.getElementById('orgForm').addEventListener('submit', async function (event) {
       event.preventDefault();
 
@@ -134,14 +152,12 @@
       if (!name) return alert("Organization name is required.");
 
       try {
-        // Update name & announcement
         await fetch('update_org.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: orgId, org_name: name, announcement })
         });
 
-        // Upload new image if selected
         const imageInput = document.getElementById('orgImage');
         if (imageInput.files.length > 0) {
           const formData = new FormData();
@@ -164,10 +180,9 @@
       }
     });
 
-    // ✅ Load data on page load
+    // Initial load
     loadApplications();
     loadMembers();
   </script>
-
 </body>
 </html>

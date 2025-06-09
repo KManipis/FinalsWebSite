@@ -63,8 +63,7 @@
 
 <nav class="nav-container">
   <ul>
-    <li><a href="MainHomepage.html">Home</a></li>
-    <li><a href="Homepage.html">Organization</a></li>
+    <li><a href="orgMain.html">Home</a></li>
     <li><a id="registerLink" href="#">Register</a></li>
 
   </ul>
@@ -90,6 +89,12 @@
     <p>We aim to promote community engagement, student development, and organizational excellence.</p>
   </div>
 </section>
+
+<div class="org-leader-info" style="text-align:center; margin-top: 20px;">
+  <h3>Organization Leader</h3>
+  <p id="leaderName">Loading...</p>
+  <p id="leaderEmail">Loading...</p>
+</div>
 
 <h2>Accepted Members</h2>
 <ul id="memberList">Loading...</ul>
@@ -146,7 +151,7 @@
   if (orgId) {
     loadOrgData(orgId, {
       nameElementId: 'orgName',
-      announcementElementId: 'orgAnnouncement',
+      taglineElementId: 'orgTagline',
       logoElementId: 'orgLogo'
     });
 
@@ -179,6 +184,22 @@ if (orgId) {
 } else {
   registerLink.style.display = 'none'; // Hide the link if org_id is missing
 }
+
+// Fetch and display org leader info
+fetch(`get_org_leader.php?org_id=${orgId}`)
+  .then(res => res.json())
+  .then(data => {
+    if (data.error) {
+      document.getElementById('leaderName').textContent = "Leader not assigned yet.";
+      document.getElementById('leaderEmail').textContent = "";
+    } else {
+      document.getElementById('leaderName').textContent = `Name: ${data.name}`;
+      document.getElementById('leaderEmail').textContent = `Email: ${data.email}`;
+    }
+  })
+  .catch(err => {
+    console.error("Error loading org leader info:", err);
+  });
 
 </script>
 

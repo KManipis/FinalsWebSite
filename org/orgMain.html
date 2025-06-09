@@ -166,7 +166,6 @@
   <nav class="nav-container">
     <ul>
       <li><a href="orgMain.html">Home</a></li>
-      <li><a href="Homepage.html">Organization</a></li>
       <li><a href="#about">About Us</a></li>
     </ul>
   </nav>
@@ -213,7 +212,7 @@
             <img id="logo-${org.id}" src="placeholder.jpg" alt="Org Logo" />
             <div class="org-info">
               <h3 id="name-${org.id}">${org.org_name}</h3>
-              <p id="announcement-${org.id}">${org.announcement || 'No announcement yet.'}</p>
+              <p id="tagline-${org.id}">${org.tagline || 'No tagline yet.'}</p>
             </div>
           `;
 

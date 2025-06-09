@@ -1,6 +1,6 @@
 export async function loadOrgData(orgId, {
   nameElementId,
-  announcementElementId,
+  taglineElementId,
   logoElementId
 }) {
   try {
@@ -11,9 +11,9 @@ export async function loadOrgData(orgId, {
       document.getElementById(nameElementId).textContent = data.org_name;
     }
 
-    if (announcementElementId) {
-      const ann = document.getElementById(announcementElementId);
-      if (ann) ann.textContent = data.announcement || "No announcement available.";
+    if (taglineElementId) {
+      const ann = document.getElementById(taglineElementId);
+      if (ann) ann.textContent = data.tagline || "No tagline available.";
     }
 
     if (logoElementId) {

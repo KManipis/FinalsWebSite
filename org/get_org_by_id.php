@@ -16,7 +16,7 @@ if ($conn->connect_error) {
     exit;
 }
 
-$sql = "SELECT org_name, announcement FROM org WHERE id = ?";
+$sql = "SELECT org_name, tagline FROM org WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $id);
 $stmt->execute();

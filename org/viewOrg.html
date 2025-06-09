@@ -1,26 +1,207 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Organization Page</title>
   <meta charset="UTF-8">
+  <title id="pageTitle">Organization Page</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="csspage.css">
+  <style>
+    .org-header {
+      display: flex;
+      align-items: center;
+      background-color: #002147;
+      color: white;
+      padding: 20px;
+    }
+
+    .org-header img {
+      height: 50px;
+      margin-right: 15px;
+    }
+
+    .org-header h1 {
+      font-size: 24px;
+    }
+
+    .org-content {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .org-content h2 {
+      font-size: 26px;
+      margin-bottom: 15px;
+      color: #002147;
+    }
+
+    .org-content p {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #333;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 30px;
+      text-decoration: none;
+      color: #FFD700;
+      font-weight: bold;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
-  <h1 id="orgName">Loading...</h1>
-  <img id="orgLogo"><br><br>
-  <h3>Announcement:</h3>
-  <p id="orgAnnouncement">No announcement available.</p>
 
-  <script type="module">
-    import { loadOrgData } from './orgUtils.js';
+<div class="org-header">
+  <img id="orgLogo" src="placeholder.png" alt="Organization Logo">
+  <h1 id="orgName">Loading Organization...</h1>
+</div>
 
-    const params = new URLSearchParams(window.location.search);
-    const orgId = params.get('id');
+<nav class="nav-container">
+  <ul>
+    <li><a href="orgMain.html">Home</a></li>
+    <li><a id="registerLink" href="#">Register</a></li>
 
+  </ul>
+</nav>
+
+<div class="banner"></div>
+
+<section class="org-info-cards">
+  <div class="info-event-card">
+    <h3>Mission</h3>
+    <p>Our mission is to empower students through excellence in leadership and service.</p>
+  </div>
+  <div class="info-event-card">
+    <h3>Vision</h3>
+    <p>To be a dynamic student organization that inspires positive change and fosters growth.</p>
+  </div>
+  <div class="info-event-card">
+    <h3>Background</h3>
+    <p>This organization was founded in 2015 to support student initiatives across all colleges.</p>
+  </div>
+  <div class="info-event-card">
+    <h3>Goals</h3>
+    <p>We aim to promote community engagement, student development, and organizational excellence.</p>
+  </div>
+</section>
+
+<div class="org-leader-info" style="text-align:center; margin-top: 20px;">
+  <h3>Organization Leader</h3>
+  <p id="leaderName">Loading...</p>
+  <p id="leaderEmail">Loading...</p>
+</div>
+
+<h2>Accepted Members</h2>
+<ul id="memberList">Loading...</ul>
+
+<!-- Events Section -->
+<section class="events-section content-container">
+  <h2>Past Events</h2>
+  <div class="events-grid">
+    <div class="event-card">
+      <img src="Images/494827421_1235172214619607_2143135817146253635_n.jpg" alt="Blood Drive 2023">
+      <div>
+        <h4>Blood Drive 2023</h4>
+        <p>Partnered with Philippine Red Cross, collecting over 100 blood bags from NU students and faculty.</p>
+      </div>
+    </div>
+    <div class="event-card">
+      <img src="Images/da.jpg" alt="First Aid Training">
+      <div>
+        <h4>First Aid Training</h4>
+        <p>Trained over 50 volunteers on emergency response and life-saving techniques.</p>
+      </div>
+    </div>
+  </div>
+  <a href="orgMain.html" class="back-btn">← Back to Homepage</a>
+</section>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="footer-content">
+    <div class="footer-section about">
+      <h3>National University</h3>
+      <p>Empowering student leaders through excellence and service.</p>
+    </div>
+
+    <div class="footer-section social">
+      <h4>Follow Us</h4>
+      <a href="#"><i class="fab fa-facebook-f"></i> Facebook</a><br>
+      <a href="#"><i class="fab fa-instagram"></i> Instagram</a><br>
+      <a href="#"><i class="fab fa-twitter"></i> Twitter</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 National University Organizations. All rights reserved.</p>
+  </div>
+</footer>
+
+<!-- Combine into one script to avoid redeclaration -->
+<script type="module">
+  import { loadOrgData } from './orgUtils.js';
+
+  const params = new URLSearchParams(window.location.search);
+  const orgId = params.get('id');
+
+  if (orgId) {
     loadOrgData(orgId, {
       nameElementId: 'orgName',
-      announcementElementId: 'orgAnnouncement',
+      taglineElementId: 'orgTagline',
       logoElementId: 'orgLogo'
     });
-  </script>
+
+    fetch(`get_members.php?org_id=${orgId}`)
+      .then(res => res.json())
+      .then(data => {
+        const list = document.getElementById('memberList');
+        list.innerHTML = '';
+        if (data.length === 0) {
+          list.innerHTML = '<li>No accepted members yet.</li>';
+        } else {
+          data.forEach(member => {
+            const li = document.createElement('li');
+            li.textContent = `${member.student_name} - ${member.program}`;
+            list.appendChild(li);
+          });
+        }
+      })
+      .catch(err => {
+        console.error("Error loading members:", err);
+      });
+  } else {
+    console.error("Missing organization ID.");
+  }
+
+  // Dynamically update the Register link with the org ID
+const registerLink = document.getElementById('registerLink');
+if (orgId) {
+  registerLink.href = `ApplicationLetter.html?id=${orgId}`;
+} else {
+  registerLink.style.display = 'none'; // Hide the link if org_id is missing
+}
+
+// Fetch and display org leader info
+fetch(`get_org_leader.php?org_id=${orgId}`)
+  .then(res => res.json())
+  .then(data => {
+    if (data.error) {
+      document.getElementById('leaderName').textContent = "Leader not assigned yet.";
+      document.getElementById('leaderEmail').textContent = "";
+    } else {
+      document.getElementById('leaderName').textContent = `Name: ${data.name}`;
+      document.getElementById('leaderEmail').textContent = `Email: ${data.email}`;
+    }
+  })
+  .catch(err => {
+    console.error("Error loading org leader info:", err);
+  });
+
+</script>
+
 </body>
 </html>

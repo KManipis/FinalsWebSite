@@ -4,7 +4,7 @@ $data = json_decode(file_get_contents("php://input"), true);
 
 $id = $data['id'] ?? '';
 $name = $data['org_name'] ?? '';
-$announcement = $data['announcement'] ?? '';
+$tagline = $data['tagline'] ?? '';
 
 if (!$id || !$name) {
   http_response_code(400);
@@ -12,8 +12,8 @@ if (!$id || !$name) {
   exit;
 }
 
-$stmt = $pdo->prepare("UPDATE org SET org_name = ?, announcement = ? WHERE id = ?");
-$stmt->execute([$name, $announcement, $id]);
+$stmt = $pdo->prepare("UPDATE org SET org_name = ?, tagline = ? WHERE id = ?");
+$stmt->execute([$name, $tagline, $id]);
 
 echo json_encode(['success' => true]);
 ?>

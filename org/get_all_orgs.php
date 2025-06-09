@@ -1,7 +1,7 @@
 <?php
 require 'db.php'; // your connection setup
 
-$sql = "SELECT id, org_name, announcement FROM org";
+$sql = "SELECT id, org_name, tagline FROM org";
 $result = $conn->query($sql);
 
 $orgs = [];
